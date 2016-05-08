@@ -1,0 +1,116 @@
+Ellen Duong, Daniel McCann, Chloe Snyder
+CIS 460
+Homework 6
+December 7, 2015
+
+Ellen 
+Volumentric Clouds
+Working on implicit Surfaces and improving clouds
+
+Chloe
+Transmissive Materials, Anisotropic Materials, Depth of Field, BVH
+
+Dan
+Working on Thread Scheduling and BVH
+
+Table of Contents
+-------------------
+RM-0 RENDERS EXPLANATION
+RM-1 TEST/TOGGLE BETWEEN DIRECT, INDIRECT, LIGHT, BXDF, MIS, CLOUDS
+RM-2 TRANSMISSIVE MATERIALS EXPLANATION
+RM-3 DEPTH OF FIELD EXPLANATION
+RM-4 ANISOTROPIC MATERIALS EXPLANATION
+RM-5 BVH EXPLANATION
+
+***********************************************************
+RM-0 RENDERS EXPLANATION
+***********************************************************
+All of my renders should be nicely labeled
+FILE_(IN)DIRECT_TYPE_SAMPLESQRT
+
+full means that it has everything like MIS, LIGHT, BXDF :D
+
+For the final project:
+Ellen has labeled her files as
+eldu_(in)direct_#Voxels_#Samples
+
+Chloe has labeled her files as:
+csny_light_bulbs
+csny_fish_tank
+
+***********************************************************
+RM-1 TEST/TOGGLE BETWEEN DIRECT, INDIRECT, LIGHT, BXDF, MIS, 
+                 CLOUDS
+***********************************************************
+TOGGLE BETWEEN DIRECT AND INDIRECT
+Integrator
+	TraceRay 
+		This does the indirect lighting or direct lighting
+		Toggle #define INDIRECT
+
+ISOLATE LIGHT, BXDF, MIS
+Integrator
+	DirectLightingIntegratorTraceRay
+		Find "QUIK" you'll see the following
+		    /** --------------------------------------
+		     *  QUIK Change this to see other LTE outcomes
+		     *  LTE_LIGHT = first half of the equation with the light
+		     *  LTE_BxDF = second half of the equation with the BxDF
+		     *  wf = MIS for LTE_LIGHT
+		     *  wg = MIS for LTE_BxDF
+		     * ---------------------------------------
+		     */
+
+CLOUDS
+Integrator
+	Make sure that the DirectLightingIntegratorTraceRay has "withClouds"
+	at the end of it. Otherwise you won't be able to render with clouds
+	in the scene. I've made no clouds the default such that Chloe and
+	Dan would not be hindered by my newly formed integrator. Also it seems
+	to have problems when doing indirect ligtingwith clouds. I suspect
+	that more rays are only hitting the edges of the geometry . I don't
+	beliee I"m handling that correctly yet
+Scene Files
+	I've included in this submission an xml file with clouds in it. You
+	can run that if you wish.
+
+
+***********************************************************
+RM-2 TRANSMISSIVE MATERIALS EXPLANATION
+***********************************************************
+To create a transmissive material, set the type = "transmissive". The transmissive materials sample fresnel transmission and fresnel reflectance bxdfs. Be sure to put the transmission BXDF first, then the reflectance one.
+The sampling prevents total internal reflection. You can simiulate
+different materials by inputting the proper values into the XML file.
+I.e. glass has an index of refraction of 1.52, diamond of 2.42.
+
+There are different reflectance functions based on whether or not the 
+material is a conductor or a dialetric. You must set this in the XML file. For example:        
+ <bxdf type="fresnel_specularreflection" name="air_to_glass_r" diffuseColor="1 1 1" ei="1" et="1.52" eta="0 0 0" k="0 0 0" isDiel="1"></bxdf>
+For dieletrics, set ei and et. For conductors, set k (absorption value) and eta (index of refraction). The specular reflection bxdf may be used alone with a default material to get accurate reflections for different kinds of material (i.e. aluminum).
+
+In csny_light_bulbs, you can see the glass material used on the glass of the bulbs. You can also see this with the glass sphere is csny_adam_scene
+
+***********************************************************
+RM-3 DEPTH OF FIELD EXPLANATION
+***********************************************************
+Depth of field is controlled in the camera of the XML file. To enable depth of field, write <enableDOF>1</enableDOF>. in the camera field.
+
+The lens radius says how big the area of focus is, while the focal distance says where along the z axis the camera will focus. To focus on a specific object, set <focalDistance>(negative z distance to object from the camera)</focalDistance>. Lens radius is set as <lensRadius>r</lensRadius>
+
+In csny_fish_tank and csny_adam_scene, you can see depth of field.
+
+***********************************************************
+RM-4 ANISOTROPIC MATERIALS EXPLANATION
+***********************************************************
+For extra credit, I implements anisotropic materials. Anisotropic materials are materials where the reflection can stretch/squash in either the x or y direction based on input values, unlike isotropic materials which are more like blinn reflectance. The anisotropic material is a bxdf, and the reflection can be controled by changing ex and ey:
+ <bxdf type = "anisotropic" name= "anisotropic1" diffuseColor="1 1 1" ex="10000" ey="400" e="20">
+ </bxdf>
+
+In csny_light_bulbs, you can see anisotropic reflectance used in the metal screw of the light bulb. There is also an anisotropic sphere in csny_adam_scene
+
+***********************************************************
+RM-5 BVH EXPLANATION
+***********************************************************
+Chloe: I also helped work on BVH for extra credit. I integrated Dan's HW3 BVH code into our new homework after mine was having a weird crash due to some QT compatability issues with dynamic cast (Dan's also used dynamic cast but didn't cause issues integrating with my code). Together we figured out how to fix his code so that it would work properly with Ellen's base code (changing assumptions about object space/world space transformations, mostly). 
+
+Both Dan and I attempted to implement the surface heuristic separately. Unfortunately, I was unable to figure it out and as this is extra credit for me I had to move on to other projects. My code keeps crashing with a strange QT error and it's not quite clear to me where it's being thrown from and why it is happening.
